@@ -1,0 +1,57 @@
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Python bytecode/cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.egg-info/
+*.egg
+build/
+dist/
+
+# uv
+# (uv.lock should normally be committed for reproducible installs —
+# uncomment the next line only if you intentionally don't want to track it)
+# uv.lock
+
+# Environment/secrets
+.env
+.env.*
+*.key
+secrets.json
+
+# Pipeline output directories (timestamped run folders like pdf_processing_20260618_131416)
+pdf_processing_*/
+*.pdf
+
+# OCR input/output artifacts — uncomment any you don't want tracked
+# *.pdf
+# !Ar.pdf
+# *.docx
+# !arabic-template.docx
+
+# Logs
+*.log
+logs/
+
+# OS junk
+.DS_Store
+Thumbs.db
+
+# Editor/IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Type checker / test caches
+.mypy_cache/
+.pytest_cache/
+.ruff_cache/

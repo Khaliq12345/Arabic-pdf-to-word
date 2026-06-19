@@ -1,0 +1,15 @@
+[project]
+name = "ocr-ar"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.12,<3.13"
+dependencies = [
+    "docxcompose>=2.2.0",
+    "fastapi[standard]>=0.137.2",
+    "google-genai>=2.8.0",
+    "pdf2docx>=0.5.13",
+    "pdf2image>=1.17.0",
+    "python-dotenv>=1.2.2",
+    "w3lib>=2.4.1",
+]
