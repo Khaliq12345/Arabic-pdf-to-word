@@ -132,7 +132,9 @@ async def get_job_binary(job_id: str):
 
     # Return raw binary stream
     return Response(
-        content=job.get("result_binary"), media_type="application/octet-stream"
+        content=job.get("result_binary"),
+        media_type="application/octet-stream",
+        headers={"Content-Disposition": f"attachment; filename={job_id}.docx"},
     )
 
 
