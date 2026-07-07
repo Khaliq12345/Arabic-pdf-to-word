@@ -11,6 +11,7 @@ from fastapi import (
     HTTPException,
     Security,
 )
+import base64
 from celery.result import AsyncResult
 from fastapi.responses import PlainTextResponse, Response
 from api.dependency import verify_api_key
