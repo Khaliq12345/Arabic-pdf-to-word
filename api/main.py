@@ -17,62 +17,9 @@ from api.dependency import verify_api_key
 from celery_app import run_pipeline_task
 import celery_app
 
-# from pipeline import split_pdf, process_images_to_docx, combine_docx_files
-
 app = FastAPI(
     title="PDF to Word Processing API", dependencies=[Security(verify_api_key)]
 )
-
-# Simple in-memory database to store job state
-# jobs_db = {}
-
-
-# def run_pipeline_task(job_id: str, pdf_bytes: bytes):
-#     """The long-running worker function executed in the background."""
-#     jobs_db[job_id]["status"] = "processing"
-#     target_folder = None
-#
-#     try:
-#         # Step 1: Split PDF into images
-#         target_folder = split_pdf(binary_data=pdf_bytes)
-#         jobs_db[job_id]["target_folder"] = target_folder
-#
-#         # Step 2: Extract text via Gemini
-#         created_docx_list = process_images_to_docx(target_folder)
-#
-#         # Step 3: Merge documents
-#         combine_docx_files(created_docx_list, target_folder)
-#
-#         final_docx_path = os.path.join(target_folder, "combined_final.docx")
-#
-#         if os.path.exists(final_docx_path):
-#             # Read the final binary data into memory so we can safely purge the folder
-#             # 1. Read and save the raw binary bytes of the Word file
-#             with open(final_docx_path, "rb") as f:
-#                 jobs_db[job_id]["result_binary"] = f.read()
-#
-#             # 2. Extract the actual text paragraphs from the Word file
-#             doc = Document(final_docx_path)
-#             full_text = []
-#             for paragraph in doc.paragraphs:
-#                 full_text.append(paragraph.text)
-#
-#             # Join the paragraphs together with line breaks and save it
-#             jobs_db[job_id]["result_text"] = "\n".join(full_text)
-#
-#             jobs_db[job_id]["status"] = "completed"
-#         else:
-#             jobs_db[job_id]["status"] = "failed"
-#             jobs_db[job_id]["error"] = "Pipeline completed but final file was missing."
-#
-#     except Exception as e:
-#         jobs_db[job_id]["status"] = "failed"
-#         jobs_db[job_id]["error"] = str(e)
-#
-#     finally:
-#         # Instantly clean up the local storage directory since the final binary is cached in jobs_db
-#         if target_folder and os.path.exists(target_folder):
-#             shutil.rmtree(target_folder)
 
 
 @app.post("/jobs")

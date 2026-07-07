@@ -1,18 +1,24 @@
 import os
 import shutil
 import base64
-
 from celery import Celery
 from pipeline import split_pdf, process_images_to_docx, combine_docx_files
 from docx import Document
+from dotenv import load_dotenv
+
+load_dotenv()
 
 # ---------------------------------------------------------------------------
 # Celery app
 # ---------------------------------------------------------------------------
+redis_url = os.getenv("REDIS_URL", "redis://localhost:6379")
+is_ssl = redis_url.startswith("rediss://")
+ssl_suffix = "?ssl_cert_reqs=CERT_NONE" if is_ssl else ""
+
 celery_app = Celery(
     "pipeline",
-    broker="redis://localhost:6379/10",  # swap for your actual broker
-    backend="redis://localhost:6379/11",  # swap for your actual result backend
+    broker=f"{redis_url}/10{ssl_suffix}",
+    backend=f"{redis_url}/11{ssl_suffix}",
 )
 
 celery_app.conf.update(
