@@ -37,7 +37,6 @@ def run_pipeline_task(self, pdf_bytes: bytes):
     try:
         self.update_state(state="PROCESSING", meta={"stage": "splitting_pdf"})
 
-        # Step 1: Split PDF into images
         target_folder = split_pdf(binary_data=pdf_bytes)
 
         self.update_state(
@@ -45,7 +44,6 @@ def run_pipeline_task(self, pdf_bytes: bytes):
             meta={"stage": "extracting_text", "target_folder": target_folder},
         )
 
-        # Step 2: Extract text via Gemini
         created_docx_list = process_images_to_docx(target_folder)
 
         self.update_state(
@@ -53,38 +51,42 @@ def run_pipeline_task(self, pdf_bytes: bytes):
             meta={"stage": "merging_documents", "target_folder": target_folder},
         )
 
-        # Step 3: Merge documents
         combine_docx_files(created_docx_list, target_folder)
+
         final_docx_path = os.path.join(target_folder, "combined_final.docx")
 
         if not os.path.exists(final_docx_path):
             raise FileNotFoundError("Pipeline completed but final file was missing.")
 
-        # Read the final binary data into memory so we can safely purge the folder
         with open(final_docx_path, "rb") as f:
             result_binary = f.read()
 
-        # Extract the actual text paragraphs from the Word file
         doc = Document(final_docx_path)
+
         full_text = [paragraph.text for paragraph in doc.paragraphs]
+
         result_text = "\n".join(full_text)
 
-        # Binary is base64-encoded since Celery result backends (Redis, etc.)
-        # serialize the return value as JSON by default.
         return {
             "status": "completed",
             "result_text": result_text,
             "result_binary_b64": base64.b64encode(result_binary).decode("utf-8"),
         }
 
-    except Exception:
-        # Re-raising lets Celery mark the task FAILURE and store the
-        # exception/traceback in the result backend automatically.
+    except Exception as exc:
+
+        # IMPORTANT: explicitly mark failure
+        self.update_state(
+            state="FAILURE",
+            meta={
+                "stage": "failed",
+                "error": str(exc),
+                "error_type": type(exc).__name__,
+            },
+        )
         raise
 
     finally:
-        # Instantly clean up the local storage directory since the final
-        # binary is returned as the task result rather than cached anywhere.
         if target_folder and os.path.exists(target_folder):
             shutil.rmtree(target_folder)
 
